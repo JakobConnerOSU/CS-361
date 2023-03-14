@@ -7,15 +7,16 @@ import {
 import './App.css';
 import Header from './Header.js';
 import Home from './pages/Home.js';
-import ComingSoon from './pages/ComingSoon.js'
+import Budget from './pages/Budget';
+import ComingSoon from './pages/ComingSoon.js';
 
 function App() {
-  return (
+  return(
     <Router>
       <Header />
       <Switch>
         <Route path="/budget">
-          <ComingSoon />
+          <Budget />
         </Route>
         <Route path="/plans">
           <ComingSoon />

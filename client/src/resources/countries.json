@@ -1,0 +1,20 @@
+{
+    "unitedstates": {
+        "value": "unitedstates",
+        "label": "United States",
+        "currency": "usd",
+        "language": "en"
+    },
+    "mexico": {
+        "value": "mexico",
+        "label": "Mexico",
+        "currency": "mxn",
+        "language": "es"
+    },
+    "france": {
+        "value": "france",
+        "label": "France",
+        "currency": "eur",
+        "language": "fr"
+    }
+}

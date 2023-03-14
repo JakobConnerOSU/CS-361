@@ -1,13 +1,14 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom';
 
 function Header() {
     const { pathname } = useLocation();
-    return (
+
+    return(
         <div className="navbar navbar-expand-lg bg-dark mb-5">
             <div className="container-fluid">
                 <a className="navbar-brand text-white" href="#">CS 361 Project</a>
                 <div className="collapse navbar-collapse">
-                    <ul className="navbar-nav">
+                    <ul className="navbar-nav me-auto">
                         <li className="nav-item">
                             <Link to="/" className={`nav-link text-white ${pathname === "/" ? " text-decoration-underline" : ""}`}>
                                 Home

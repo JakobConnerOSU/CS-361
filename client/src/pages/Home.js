@@ -1,30 +1,13 @@
 import React from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
+import countries from "../resources/countries.json";
+import CountrySelect from "../components/CountrySelect";
 
-const exchangeRates ={
+const exchangeRates = {
     "usd": 1,
     "mxn": 18.78,
     "eur": 0.92
-}
-
-const countries = {
-    "unitedstates": {
-        value: "unitedstates",
-        label: "United States",
-        currency: "usd",
-        language: "en"
-    },
-    "mexico": {
-        value: "mexico",
-        label: "Mexico",
-        currency: "mxn",
-        language: "es"
-    },
-    "france": {
-        value: "france",
-        label: "France",
-        currency: "eur",
-        language: "fr"
-    }
 }
 
 class Home extends React.Component {
@@ -35,36 +18,22 @@ class Home extends React.Component {
             destination: null,
             convertedCurrency: "",
             inputCurrencyType: "origin",
-            inputCurrencyValue: 0.00
-        }
+            inputCurrencyValue: 0.00,
+            originLanguageValue: "",
+            destinationLanguageValue: ""
+        };
 
         this.convertCurrency = this.convertCurrency.bind(this);
+        this.translate = this.translate.bind(this);
+        this.setOrigin = this.setOrigin.bind(this);
+        this.setDestination = this.setDestination.bind(this);
     }
 
     render() {
-        console.log(this.state)
-        return (
+        return(
             <div className="container">
                 <div className="row mb-3">
-                    <h1 className="mb-3">Country Selection</h1>
-                    <div className="input-group mb-3">
-                        <label className="input-group-text" for="originCountrySelect">Home Country</label>
-                        <select className="form-select" id="originCountrySelect" onChange={e => this.setState({origin: e.target.value})}>
-                            <option selected disabled>Choose...</option>
-                            ${Object.values(countries).map((country, i) => {
-                                return <option key={`origin-${country.value}`} value={country.value}>{country.label}</option>
-                            })}
-                        </select>
-                    </div>
-                    <div className="input-group mb-3">
-                        <label className="input-group-text" for="destinationCountrySelect">Destination Country</label>
-                        <select className="form-select" id="destinationCountrySelect" onChange={e => this.setState({destination: e.target.value})}>
-                            <option selected disabled>Choose...</option>
-                            ${Object.values(countries).map((country, i) => {
-                                return <option key={`destination-${country.value}`} value={country.value}>{country.label}</option>
-                            })}
-                        </select>
-                    </div>
+                    <CountrySelect setOrigin={this.setOrigin} setDestination={this.setDestination} />
                 </div>
                 <hr />
                 <div className="row">
@@ -91,7 +60,26 @@ class Home extends React.Component {
                     <div className="col-5">
                         <div className="row mb-3">
                             <h1 className="mb-3">Translation</h1>
-                            <h3>Coming Soon!</h3>
+                            <div className="input-group mb-3">
+                                <label className="input-group-text" for="homeLanguage">Home Language</label>
+                                <input type="text" className="form-control" id="homeLanguage" value={this.state.originLanguageValue} onChange={e => this.setState({originLanguageValue: e.target.value})}></input>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <button type="button" className="btn btn-success mb-3 w-100" disabled={this.state.origin == null || this.state.destination == null} onClick={() => this.translate("origin", "destination")}>
+                                        <FontAwesomeIcon icon={faArrowDown} />
+                                    </button>
+                                </div>
+                                <div className="col">
+                                    <button type="button" className="btn btn-success mb-3 w-100" disabled={this.state.origin == null || this.state.destination == null} onClick={() => this.translate("destination", "origin")}>
+                                        <FontAwesomeIcon icon={faArrowUp} />
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="input-group mb-3">
+                                <label className="input-group-text" for="destinationLanguage">Destination Language</label>
+                                <input type="text" className="form-control" id="destinationLanguage" value={this.state.destinationLanguageValue} onChange={e => this.setState({destinationLanguageValue: e.target.value})}></input>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -100,20 +88,45 @@ class Home extends React.Component {
     }
 
     convertCurrency() {
-        let value = Number(this.state.inputCurrencyValue)
+        let currencyValue = Number(this.state.inputCurrencyValue)
         let inputCountry = (this.state.inputCurrencyType == "origin") ? countries[this.state.origin] : countries[this.state.destination]
         let outputCountry = (this.state.inputCurrencyType == "origin") ? countries[this.state.destination] : countries[this.state.origin]
 
-        value /= exchangeRates[inputCountry.currency]
-        value *= exchangeRates[outputCountry.currency]
+        currencyValue /= exchangeRates[inputCountry.currency]
+        currencyValue *= exchangeRates[outputCountry.currency]
 
         this.setState({
-            convertedCurrency: value
+            convertedCurrency: currencyValue
         })
     }
 
-    translate() {
-        
+    translate(from, to) {
+        let inputCountry = countries[this.state[from]];
+        let outputCountry = countries[this.state[to]];
+
+        this.setState({
+            [to + "LanguageValue"]: "Translating..."
+        });
+
+        fetch(`http://localhost:3000/translate?in=${inputCountry.language}&out=${outputCountry.language}&text=${encodeURIComponent(this.state[from + "LanguageValue"])}`)
+            .then((response) => response.text())
+            .then((data) => {
+                this.setState({
+                    [to + "LanguageValue"]: data
+                });
+            })
+    }
+    
+    setOrigin(origin) {
+        this.setState({
+            origin: origin
+        });
+    }
+    
+    setDestination(destination) {
+        this.setState({
+            destination: destination
+        });
     }
 }
 
